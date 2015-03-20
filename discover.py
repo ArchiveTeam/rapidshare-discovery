@@ -5,6 +5,7 @@ import string
 import sys
 import time
 import random
+import os
 
 DEFAULT_HEADERS = {'User-Agent': 'ArchiveTeam'}
 
@@ -18,15 +19,17 @@ def main():
     # Normal programs use 'argparse' but this keeps things simple
     start_num = int(sys.argv[1])
     end_num = int(sys.argv[2])
-    output_filename = sys.argv[3]  # this should be something like myfile.txt.gz
+    item_value = sys.argv[3]
+    output_filename = sys.argv[4]  # this should be something like myfile.txt.gz
 
     assert start_num <= end_num
 
     print('Starting', start_num, end_num)
+    sys.stdout.flush()
 
     gzip_file = gzip.GzipFile(output_filename, 'wb')
 
-    for shortcode in check_range(start_num, end_num):
+    for shortcode in check_range(start_num, end_num, item_value):
         # Write the valid result one per line to the file
         line = '{0}\n'.format(shortcode)
         gzip_file.write(line.encode('ascii'))
@@ -36,7 +39,7 @@ def main():
     print('Done')
 
 
-def check_range(start_num, end_num):
+def check_range(start_num, end_num, item_value):
     for num in range(start_num, end_num + 1):
         shortcode = num
         url = 'http://rapid-search-engine.com/index-s=%252A{0}%252A&stype=0&start={1}.html'.format(item_value, shortcode)
@@ -58,9 +61,14 @@ def check_range(start_num, end_num):
             else:
                 if text:
                     yield 'page:{0}:{1}'.format(item_value, shortcode)
+                    print('page:{0}:{1}'.format(item_value, shortcode))
+                    sys.stdout.flush()
 
                     for file in extract_files(text):
-                        yield '{0}'.format(file)
+			if not '"' in file:
+                            yield '{0}'.format(file)
+                            print('{0}'.format(file))
+                            sys.stdout.flush()
                 break  # stop the while loop
 
             counter += 1
@@ -71,7 +79,7 @@ def fetch(url):
 
     Returns True, returns the response text. Otherwise, returns None
     '''
-    time.sleep(random.randint(60,120))
+    time.sleep(random.randint(30, 70))
     print('Fetch', url)
     sys.stdout.flush()
 
