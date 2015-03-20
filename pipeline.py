@@ -114,6 +114,8 @@ class MoveFiles(SimpleTask):
 class CustomProcessArgs(object):
     def realize(self, item):
         item_type, item_value = item['item_name'].split(':', 1)
+        item['item_type'] = item_type
+        item['item_value'] = item_value
 
         if item_type == 'page':
             # Expect something like page:aa or page:gh
@@ -223,7 +225,9 @@ pipeline = Pipeline(
         max_tries=2,
         accept_on_exit_code=[0],
         env={
-            "item_dir": ItemValue("item_dir")
+            "item_dir": ItemValue("item_dir"),
+            "item_type": ItemValue("item_type"),
+            "item_value": ItemValue("item_value"),
         }
     ),
     PrepareStatsForTracker(
