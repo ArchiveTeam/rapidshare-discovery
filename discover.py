@@ -61,14 +61,10 @@ def check_range(start_num, end_num, item_value):
             else:
                 if text:
                     yield 'page:{0}:{1}'.format(item_value, shortcode)
-                    print('page:{0}:{1}'.format(item_value, shortcode))
-                    sys.stdout.flush()
 
                     for file in extract_files(text):
 			if not '"' in file:
                             yield '{0}'.format(file)
-                            print('{0}'.format(file))
-                            sys.stdout.flush()
                 break  # stop the while loop
 
             counter += 1
