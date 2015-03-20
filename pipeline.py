@@ -9,6 +9,7 @@ import sys
 import time
 import random
 import requests
+import re
 
 import seesaw
 from seesaw.config import NumberConfigValue
@@ -32,7 +33,7 @@ if StrictVersion(seesaw.__version__) < StrictVersion("0.1.5"):
 # Update this each time you make a non-cosmetic change.
 # It will be added to the WARC files and reported to the tracker.
 
-VERSION = "20150320.01"
+VERSION = "20150303.01"
 USER_AGENT = 'ArchiveTeam'
 TRACKER_ID = 'rapidsharedisco'
 TRACKER_HOST = 'tracker.archiveteam.org'
@@ -114,14 +115,14 @@ class MoveFiles(SimpleTask):
 class CustomProcessArgs(object):
     def realize(self, item):
         item_type, item_value = item['item_name'].split(':', 1)
-        item['item_type'] = item_type
-        item['item_value'] = item_value
+
+        counter = 0
 
         if item_type == 'page':
             # Expect something like page:aa or page:gh
-            url = 'http****{0}'.format(item_value)
+            url = 'http://rapid-search-engine.com/index-s=%252A{0}%252A&stype=0.html'.format(item_value)
             tries = 0
-            start_num = 0
+            start_num = "0"
             while True:
                 if counter > 20:
                     raise Exception('Too many retries, giving up.')
@@ -133,9 +134,12 @@ class CustomProcessArgs(object):
                     time.sleep(15)
                 else:
                     if html:
-                        end_num = extract_pages(html)
-                        return ['python', 'discover.py', start_num, end_num,
-                                "%(item_dir)s/%(warc_file_base)s.txt.gz" % item]
+                        end_num = str(extract_pages(html))
+                        if int(end_num) == 500:
+                            raise Exception('500 or more pages, needs more items.')
+                        else:
+                            return ['python', 'discover.py', start_num, end_num, item_value,
+                                    "%(item_dir)s/%(warc_file_base)s.txt.gz" % item]
                     break
                 tries += 1
         else:
@@ -157,8 +161,9 @@ def extract_pages(html):
         else:
             raise Exception('No results/pages.')
 
-def FetchError(Exception):
+class FetchError(Exception):
     # Custom error class
+    pass
 
 def rapidfetch(url):
     # Fetch page to extract number of pages with results
@@ -225,9 +230,7 @@ pipeline = Pipeline(
         max_tries=2,
         accept_on_exit_code=[0],
         env={
-            "item_dir": ItemValue("item_dir"),
-            "item_type": ItemValue("item_type"),
-            "item_value": ItemValue("item_value"),
+            "item_dir": ItemValue("item_dir")
         }
     ),
     PrepareStatsForTracker(
