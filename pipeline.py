@@ -33,7 +33,7 @@ if StrictVersion(seesaw.__version__) < StrictVersion("0.1.5"):
 # Update this each time you make a non-cosmetic change.
 # It will be added to the WARC files and reported to the tracker.
 
-VERSION = "20150320.03"
+VERSION = "20150328.01"
 USER_AGENT = 'ArchiveTeam'
 TRACKER_ID = 'rapidsharedisco'
 TRACKER_HOST = 'tracker.archiveteam.org'
@@ -135,11 +135,10 @@ class CustomProcessArgs(object):
                 else:
                     if html:
                         end_num = str(extract_pages(html))
-                        if int(end_num) == 500:
-                            raise Exception('500 or more pages, needs more items.')
-                        else:
-                            return ['python', 'discover.py', start_num, end_num, item_value,
-                                    "%(item_dir)s/%(warc_file_base)s.txt.gz" % item]
+#                        if int(end_num) == 500:
+#                            raise Exception('500 or more pages, needs more items.')
+                        return ['python', 'discover.py', start_num, end_num, item_value,
+                                "%(item_dir)s/%(warc_file_base)s.txt.gz" % item]
                     break
                 tries += 1
         else:
