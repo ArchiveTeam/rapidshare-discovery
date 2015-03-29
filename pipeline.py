@@ -33,7 +33,7 @@ if StrictVersion(seesaw.__version__) < StrictVersion("0.1.5"):
 # Update this each time you make a non-cosmetic change.
 # It will be added to the WARC files and reported to the tracker.
 
-VERSION = "20150328.01"
+VERSION = "20150329.01"
 USER_AGENT = 'ArchiveTeam'
 TRACKER_ID = 'rapidsharedisco'
 TRACKER_HOST = 'tracker.archiveteam.org'
@@ -157,8 +157,8 @@ def extract_pages(html):
             print(match2.group(1))
             sys.stdout.flush()
             return match2.group(1)
-        else:
-            raise Exception('No results/pages.')
+#        else:
+#            raise Exception('No results/pages.')
 
 class FetchError(Exception):
     # Custom error class
